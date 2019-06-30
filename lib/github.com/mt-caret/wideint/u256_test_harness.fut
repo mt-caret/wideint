@@ -5,6 +5,10 @@ entry add  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) + (abstract b)
 entry sub  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) - (abstract b))
 entry mult (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) * (abstract b))
 entry div  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) / (abstract b))
+entry pow  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) ** (abstract b))
+entry mod  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) % (abstract b))
+entry shl  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) << (abstract b))
+entry shr  (a: [8]u32) (b: [8]u32): [8]u32 = expose ((abstract a) >> (abstract b))
 
 entry pack_unpack_roundtrip: [8]u32 -> [8]u32 = expose <-< pack <-< unpack <-< abstract
 
