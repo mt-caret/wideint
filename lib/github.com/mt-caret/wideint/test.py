@@ -66,19 +66,17 @@ class Tests(unittest.TestCase):
     def test_sub(self, a, b):
         self.assertEqual(call2(o.sub, a, b), (a + 2**256 - b) % 2**256)
 
-    #@given(a=integers(min_value=min_value, max_value=max_value), b=integers(min_value=min_value, max_value=max_value))
-    #@reproduce_failure('4.7.3', b'AXicY2DAARyB+H5/bD0jM+M9hliGL5uW2AMANUwGVQ==')
-    #def test_mult(self, a, b):
-    #    self.assertEqual(call2(o.mult, a, b), (a * b) % 2**256)
+    @given(a=integers(min_value=min_value, max_value=max_value), b=integers(min_value=min_value, max_value=max_value))
+    def test_mult(self, a, b):
+        self.assertEqual(call2(o.mult, a, b), (a * b) % 2**256)
 
     @given(a=integers(min_value=min_value, max_value=max_value), b=integers(min_value=1, max_value=max_value))
     def test_div(self, a, b):
         self.assertEqual(call2(o.div, a, b), a // b)
 
-    #@given(a=integers(min_value=min_value, max_value=max_value), b=integers(min_value=min_value, max_value=max_value))
-    #@reproduce_failure('4.7.3', b'AAEAAA8BAABA')
-    #def test_pow(self, a, b):
-    #    self.assertEqual(call2(o.pow, a, b), (a ** b) % 2**256)
+    @given(a=integers(min_value=min_value, max_value=max_value), b=integers(min_value=min_value, max_value=max_value))
+    def test_pow(self, a, b):
+        self.assertEqual(call2(o.pow, a, b), (a ** b) % 2**256)
 
     @given(a=integers(min_value=min_value, max_value=max_value), b=integers(min_value=1, max_value=max_value))
     def test_mod(self, a, b):

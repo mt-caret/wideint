@@ -20,6 +20,9 @@ module u256: wideint = {
   let map' 'a 'b (f: a -> b) (t: eight a): eight b =
     (f t.1, f t.2, f t.3, f t.4, f t.5, f t.6, f t.7, f t.8)
 
+  let unzip' 'a 'b (ab: eight (a, b)): (eight a, eight b) =
+    (map' (.1) ab, map' (.2) ab)
+
   let map_to_array 'a (f: u32 -> a) (t: t): [8]a =
     [f t.1, f t.2, f t.3, f t.4, f t.5, f t.6, f t.7, f t.8]
 
@@ -114,15 +117,42 @@ module u256: wideint = {
   let sub (a: t) (b: t): t =
     add a (negate b)
 
+  let shift_tuple_left (shift : i32) (t : t) : t =
+    assert (shift >= 0)
+      (if shift == 0 then t else
+      if shift == 1 then (0, t.1, t.2, t.3, t.4, t.5, t.6, t.7) else
+      if shift == 2 then (0,   0, t.1, t.2, t.3, t.4, t.5, t.6) else
+      if shift == 3 then (0,   0,   0, t.1, t.2, t.3, t.4, t.5) else
+      if shift == 4 then (0,   0,   0,   0, t.1, t.2, t.3, t.4) else
+      if shift == 5 then (0,   0,   0,   0,   0, t.1, t.2, t.3) else
+      if shift == 6 then (0,   0,   0,   0,   0,   0, t.1, t.2) else
+      if shift == 7 then (0,   0,   0,   0,   0,   0,   0, t.1) else
+      zero)
+
   let mult (a: t) (b: t): t =
     let a64 = map' u64m.u32 a
     let b64 = map' u64m.u32 b
-    let sum_up i =
-      loop sum = 0 for j in 0...i do
-        sum + (get j a64) * (get (i - j) b64)
+    let ith_mult i =
+      map' (* (get i b64)) a64
+        |> shift_add
+        |> shift_tuple_left i
     in
-    map' sum_up (0,1,2,3,4,5,6,7)
-      |> shift_add
+    map' ith_mult (0,1,2,3,4,5,6,7)
+      |> reduce' add
+
+    -- TODO: following should work, but does not
+    --let sum_up i =
+    --  loop accum = (0, 0) for j in 0...i do
+    --    let add_amt = (get j a64) * (get (i - j) b64) in
+    --    ( accum.1 + if u64m.highest - add_amt < accum.2 then 1 else 0
+    --    , accum.2 + add_amt
+    --    )
+    --let (carry, result) =
+    --  map' sum_up (0,1,2,3,4,5,6,7)
+    --    |> unzip'
+    --in
+    --  shift_add result
+    --    |> add (shift_tuple_left 1 carry)
 
   let lt (a: t) (b: t): bool =
     a.8 < b.8 ||
@@ -144,18 +174,6 @@ module u256: wideint = {
   let ge: t -> t -> bool = flip le
 
   let neq (a: t) (b: t): bool = ! (eq a b)
-
-  let shift_tuple_left (shift : i32) (t : t) : t =
-    assert (shift >= 0)
-      (if shift == 0 then t else
-      if shift == 1 then (0, t.1, t.2, t.3, t.4, t.5, t.6, t.7) else
-      if shift == 2 then (0,   0, t.1, t.2, t.3, t.4, t.5, t.6) else
-      if shift == 3 then (0,   0,   0, t.1, t.2, t.3, t.4, t.5) else
-      if shift == 4 then (0,   0,   0,   0, t.1, t.2, t.3, t.4) else
-      if shift == 5 then (0,   0,   0,   0,   0, t.1, t.2, t.3) else
-      if shift == 6 then (0,   0,   0,   0,   0,   0, t.1, t.2) else
-      if shift == 7 then (0,   0,   0,   0,   0,   0,   0, t.1) else
-      zero)
 
   let shl (t: t) (shift: u32): t =
     let i = shift % 32
