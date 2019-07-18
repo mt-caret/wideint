@@ -1,15 +1,6 @@
-module type u256t = {
-  include size
-  val abstract: [8]u32 -> t
-  val expose: t -> [8]u32
+import "wideint"
 
-  val pack: []bool -> t
-  val unpack: t -> [256]bool
-
-  val popcount: t -> i32
-}
-
-module u256: u256t = {
+module u256: wideint = {
   module u32m = u32
   module u64m = u64
   module i32m = i32
